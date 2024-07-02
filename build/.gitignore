@@ -1,0 +1,6 @@
+Makefile
+CMakeFiles
+*cmake*
+*ninja*
+*HC
+*HH

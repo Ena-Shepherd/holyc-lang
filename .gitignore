@@ -7,6 +7,7 @@
 *.txt
 *.s
 a.out
+.vscode
 mcc
 hcc
 watch
@@ -19,3 +20,4 @@ unit_tests
 compile_commands.json
 scratch
 test-runner
+!CMakeLists*

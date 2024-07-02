@@ -1,3 +1,8 @@
+#include "cmake-config.h"
+#ifdef UNIX
+    #define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
