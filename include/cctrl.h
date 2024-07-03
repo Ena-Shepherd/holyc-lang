@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CCTRL_H
 #define CCTRL_H
 

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "aostr.h"
 #include "ast.h"
@@ -30,18 +31,18 @@ AstType *parseUnionDef(Cctrl *cc);
 
 /* Kinda cheating converting it to a string and calling printf */
 Ast *parseFloatingCharConst(Cctrl *cc, lexeme *tok) {
-    unsigned long ch = (unsigned long)tok->i64;
+    uint64_t ch = (uint64_t)tok->i64;
     Ast *ast;
     char str[9];
     List *argv = listNew();
     str[0] = ch & 0xFF;
-    str[1] = ((unsigned long)ch) >> 8  & 0xFF;
-    str[2] = ((unsigned long)ch) >> 16 & 0xFF;
-    str[3] = ((unsigned long)ch) >> 24 & 0xFF;
-    str[4] = ((unsigned long)ch) >> 32 & 0xFF;
-    str[5] = ((unsigned long)ch) >> 40 & 0xFF;
-    str[6] = ((unsigned long)ch) >> 48 & 0xFF;
-    str[7] = ((unsigned long)ch) >> 56 & 0xFF;
+    str[1] = ((uint64_t)ch) >> 8  & 0xFF;
+    str[2] = ((uint64_t)ch) >> 16 & 0xFF;
+    str[3] = ((uint64_t)ch) >> 24 & 0xFF;
+    str[4] = ((uint64_t)ch) >> 32 & 0xFF;
+    str[5] = ((uint64_t)ch) >> 40 & 0xFF;
+    str[6] = ((uint64_t)ch) >> 48 & 0xFF;
+    str[7] = ((uint64_t)ch) >> 56 & 0xFF;
     str[8] = '\0';
 
     ast = astString(str,sizeof(str));

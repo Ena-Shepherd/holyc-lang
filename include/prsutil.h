@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PRS_UTIL
 #define PRS_UTIL
 

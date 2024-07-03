@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #include "aostr.h"
 #include "ast.h"
@@ -1090,15 +1091,15 @@ void _astToString(aoStr *str, Ast *ast, int depth) {
             case AST_TYPE_INT:   aoStrCatPrintf(str, "<I64> %ld", ast->i64); break;
             case AST_TYPE_CHAR:  {
                 char buf[9];
-                unsigned long ch = ast->i64;
+                uint64_t ch = ast->i64;
                 buf[0] = ch & 0xFF;
-                buf[1] = ((unsigned long)ch) >> 8  & 0xFF;
-                buf[2] = ((unsigned long)ch) >> 16 & 0xFF;
-                buf[3] = ((unsigned long)ch) >> 24 & 0xFF;
-                buf[4] = ((unsigned long)ch) >> 32 & 0xFF;
-                buf[5] = ((unsigned long)ch) >> 40 & 0xFF;
-                buf[6] = ((unsigned long)ch) >> 48 & 0xFF;
-                buf[7] = ((unsigned long)ch) >> 56 & 0xFF;
+                buf[1] = ((uint64_t)ch) >> 8  & 0xFF;
+                buf[2] = ((uint64_t)ch) >> 16 & 0xFF;
+                buf[3] = ((uint64_t)ch) >> 24 & 0xFF;
+                buf[4] = ((uint64_t)ch) >> 32 & 0xFF;
+                buf[5] = ((uint64_t)ch) >> 40 & 0xFF;
+                buf[6] = ((uint64_t)ch) >> 48 & 0xFF;
+                buf[7] = ((uint64_t)ch) >> 56 & 0xFF;
                 buf[8] = '\0';
                 aoStrCatPrintf(str, "<CONST_CHAR> '%s'", buf);
                 break;
@@ -1661,15 +1662,15 @@ static void _astLValueToString(aoStr *str, Ast *ast) {
             case AST_TYPE_INT:   aoStrCatPrintf(str, "%ld", ast->i64); break;
             case AST_TYPE_CHAR:  {
                 char buf[9];
-                unsigned long ch = ast->i64;
+                uint64_t ch = ast->i64;
                 buf[0] = ch & 0xFF;
-                buf[1] = ((unsigned long)ch) >> 8  & 0xFF;
-                buf[2] = ((unsigned long)ch) >> 16 & 0xFF;
-                buf[3] = ((unsigned long)ch) >> 24 & 0xFF;
-                buf[4] = ((unsigned long)ch) >> 32 & 0xFF;
-                buf[5] = ((unsigned long)ch) >> 40 & 0xFF;
-                buf[6] = ((unsigned long)ch) >> 48 & 0xFF;
-                buf[7] = ((unsigned long)ch) >> 56 & 0xFF;
+                buf[1] = ((uint64_t)ch) >> 8  & 0xFF;
+                buf[2] = ((uint64_t)ch) >> 16 & 0xFF;
+                buf[3] = ((uint64_t)ch) >> 24 & 0xFF;
+                buf[4] = ((uint64_t)ch) >> 32 & 0xFF;
+                buf[5] = ((uint64_t)ch) >> 40 & 0xFF;
+                buf[6] = ((uint64_t)ch) >> 48 & 0xFF;
+                buf[7] = ((uint64_t)ch) >> 56 & 0xFF;
                 buf[8] = '\0';
                 aoStrCatPrintf(str,"'%s'",buf);
                 break;

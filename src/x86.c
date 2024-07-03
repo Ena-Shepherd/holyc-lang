@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "aostr.h"
 #include "ast.h"
@@ -1407,7 +1408,7 @@ void asmArrayInit(Cctrl *cc, aoStr *buf, Ast *ast, AstType *type, int offset) {
                 aoStrCatPrintf(buf, "movq   $%lld, %%rax\n\t", tmp->i64);
             } else if (!tmp->type->issigned) {
                 aoStrCatPrintf(buf, "movq   $%lu, %%rax\n\t",
-                               (unsigned long)tmp->i64);
+                               (uint64_t)tmp->i64);
             }
             break;
         default:
@@ -1432,7 +1433,7 @@ void asmExpression(Cctrl *cc, aoStr *buf, Ast *ast) {
                 aoStrCatPrintf(buf, "movq   $%lld, %%rax\n\t", ast->i64);
             } else if (!ast->type->issigned) {
                 aoStrCatPrintf(buf, "movq   $%lu, %%rax\n\t",
-                        (unsigned long)ast->i64);
+                        (uint64_t)ast->i64);
             }
             break;
         case AST_TYPE_FLOAT: {

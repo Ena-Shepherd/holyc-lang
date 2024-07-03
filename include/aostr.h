@@ -4,6 +4,7 @@
  *
  * This code is released under the BSD 2 clause license.
  * See the COPYING file for more information. */
+#pragma once
 #ifndef AOSTR_H
 #define AOSTR_H
 

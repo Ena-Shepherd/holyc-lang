@@ -5,6 +5,7 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdint.h>
 
 #include "aostr.h"
 #include "ast.h"
@@ -668,8 +669,8 @@ long lexString(lexer *l, char terminator, int escape_quotes) {
 
 /* Length of the char const is returned, it OR's in at max 8 characters. 
  * A long being 64 bits and 64/8 = 8. */
-unsigned long lexCharConst(lexer *l) {
-    unsigned long char_const = 0, idx;
+uint64_t lexCharConst(lexer *l) {
+    uint64_t char_const = 0, idx;
     long hex_num = 0;
     long len;
     char ch;
@@ -683,42 +684,42 @@ unsigned long lexCharConst(lexer *l) {
         if (ch == '\\') {
             ch = lexNextChar(l);
             switch (ch) {
-                case '0':  char_const |= (unsigned long)'\0' << ((unsigned long)idx); break;
-                case '\'': char_const |= (unsigned long)'\'' << ((unsigned long)idx); break;
-                case '`':  char_const |= (unsigned long)'`'  << ((unsigned long)idx); break;
-                case '\"': char_const |= (unsigned long)'\"' << ((unsigned long)idx); break;
-                case 'd':  char_const |= (unsigned long)'$'  << ((unsigned long)idx); break;
+                case '0':  char_const |= (uint64_t)'\0' << ((uint64_t)idx); break;
+                case '\'': char_const |= (uint64_t)'\'' << ((uint64_t)idx); break;
+                case '`':  char_const |= (uint64_t)'`'  << ((uint64_t)idx); break;
+                case '\"': char_const |= (uint64_t)'\"' << ((uint64_t)idx); break;
+                case 'd':  char_const |= (uint64_t)'$'  << ((uint64_t)idx); break;
                 case 'n':  {
-                    char_const |= (unsigned long)'\n' << ((unsigned long)idx);
+                    char_const |= (uint64_t)'\n' << ((uint64_t)idx);
                     l->lineno++;
                     break;
                 }
-                case 'r':  char_const |= (unsigned long)'\r' << ((unsigned long)idx); break;
-                case 't':  char_const |= (unsigned long)'\t' << ((unsigned long)idx); break;
-                case 'v':  char_const |= (unsigned long)'\v' << ((unsigned long)idx); break;
-                case 'f':  char_const |= (unsigned long)'\f' << ((unsigned long)idx); break;
+                case 'r':  char_const |= (uint64_t)'\r' << ((uint64_t)idx); break;
+                case 't':  char_const |= (uint64_t)'\t' << ((uint64_t)idx); break;
+                case 'v':  char_const |= (uint64_t)'\v' << ((uint64_t)idx); break;
+                case 'f':  char_const |= (uint64_t)'\f' << ((uint64_t)idx); break;
                 case 'x':
                 case 'X':
                     for (int i = 0; i < 2; ++i) {
                         ch = toupper(lexNextChar(l));
                         if (isHex(ch)) {
                             if (ch <= '9') {
-                                hex_num |= (unsigned long)(hex_num<<4)+ch-'0';
+                                hex_num |= (uint64_t)(hex_num<<4)+ch-'0';
                             } else {
-                                hex_num |= (unsigned long)(hex_num<<4)+ch-'A'+10;
+                                hex_num |= (uint64_t)(hex_num<<4)+ch-'A'+10;
                             }
                         } else {
                             break;
                         }
                     }
-                    char_const |= (unsigned long)hex_num << (unsigned long)(idx);
+                    char_const |= (uint64_t)hex_num << (uint64_t)(idx);
                     break;
                 default:
-                    char_const |= (unsigned long)'\\' << (unsigned long)(idx);
+                    char_const |= (uint64_t)'\\' << (uint64_t)(idx);
                     break;
             }
         } else {
-            char_const |= (unsigned long)(((unsigned long)ch) << ((unsigned long)(idx)));
+            char_const |= (uint64_t)(((uint64_t)ch) << ((uint64_t)(idx)));
         }
     }
 

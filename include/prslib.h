@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PRS_LIB_H
 #define PRS_LIB_H
 

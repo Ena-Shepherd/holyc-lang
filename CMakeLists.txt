@@ -11,6 +11,8 @@ file(
   "src/*.c"
 )
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 #if system is linux, create a new variable
 if(APPLE)
   # for MacOS X or iOS, watchOS, tvOS (since 3.10.3)

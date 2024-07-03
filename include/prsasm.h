@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PRS_ASM
 #define PRS_ASM
 

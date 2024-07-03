@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdint.h>
 
 #include "aostr.h"
 #include "ast.h"
@@ -63,9 +64,9 @@ void prsAsmImm(Cctrl *cc, aoStr *buf, lexeme *tok) {
             next = cctrlTokenPeek(cc);
             if (!tokenPunctIs(next,'[')) {
                 aoStrPutChar(buf,'$');
-                aoStrCatPrintf(buf, "-%zu",(unsigned long)tok->i64);
+                aoStrCatPrintf(buf, "-%zu",(uint64_t)tok->i64);
             } else {
-                aoStrCatPrintf(buf, "-%zu",(unsigned long)tok->i64);
+                aoStrCatPrintf(buf, "-%zu",(uint64_t)tok->i64);
                 cctrlTokenGet(cc);
                 prsAsmMem(cc,buf);
             }
