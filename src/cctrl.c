@@ -10,6 +10,7 @@
 #include "lexer.h"
 #include "list.h"
 #include "util.h"
+#include "cmake-config.h"
 #include "config.h"
 
 static char *x86_registers = "rax,rbx,rcx,rdx,rsi,rdi,rbp,rsp,r8,r9,r10,r11,r12,"
@@ -66,11 +67,15 @@ static void cctrlAddBuiltinMacros(Cctrl *cc) {
     long bufsize = sizeof(char)*128;
 
     le = lexemeSentinal();
-    if (IS_BSD)        dictSet(cc->macro_defs,"IS_BSD",le);
-    if (IS_MACOS)      dictSet(cc->macro_defs,"IS_MACOS",le);
-    else if (IS_LINUX) dictSet(cc->macro_defs,"IS_LINUX",le);
+    #ifdef IS_BSD
+        dictSet(cc->macro_defs,"IS_BSD",le);
+    #elif defined(IS_MACOS)
+        dictSet(cc->macro_defs,"IS_MACOS",le);
+    #elif defined(IS_LINUX)
+        dictSet(cc->macro_defs,"IS_LINUX",le);
+    #endif
     
-    if (IS_X86_64)      {
+    if (IS_X86_64) {
         dictSet(cc->macro_defs,"IS_X86_64",le);
         le = lexemeNew("X86_64",6);
         le->tk_type = TK_STR;

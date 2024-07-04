@@ -1,5 +1,5 @@
 #include "cmake-config.h"
-#ifdef UNIX
+#ifdef IS_LINUX
     #define _POSIX_C_SOURCE 200809L
 #endif
 
@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "aostr.h"
-#include "config.h"
+// #include "config.h"
 #include "compile.h"
 #include "cctrl.h"
 #include "lexer.h"
@@ -57,7 +57,7 @@ typedef struct hccLib {
 } hccLib;
 
 char *getVersion(void) {
-    return "0.0.1";
+    return VERSION;
 }
 
 int hccLibInit(hccLib *lib, hccOpts *opts, char *name) { 
@@ -79,7 +79,7 @@ int hccLibInit(hccLib *lib, hccOpts *opts, char *name) {
             lib->dylib_name,lib->dylib_version_name,
             lib->stylib_name,lib->stylib_name,
             lib->dylib_version_name,lib->dylib_name);
-#elif IS_LINUX
+#elif defined IS_LINUX
     snprintf(lib->stylib_name,LIB_BUFSIZ,"%s.a",name);
     snprintf(lib->dylib_name,LIB_BUFSIZ,"%s.so",name);
     snprintf(lib->dylib_version_name,LIB_BUFSIZ,"%s.so.0.0.1",name);
@@ -245,7 +245,7 @@ void emitFile(aoStr *asmbuf, hccOpts *opts) {
 }
 
 void usage(void) {
-    fprintf(stderr,
+    fprintf(stdout,
             "HolyC Compiler 2024. UNSTABLE\n"
             "hcc [..OPTIONS] <..file>\n\n"
             "OPTIONS:\n"
@@ -260,7 +260,7 @@ void usage(void) {
             "  -g       Not implemented\n"
             "  -D<var>  Set a compiler #define (does not accept a value)\n"
             "  --help   Print this message\n");
-    exit(1);
+    exit(0);
 }
 
 void parseCliOptions(hccOpts *opts, int argc, char **argv) {

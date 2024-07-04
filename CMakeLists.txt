@@ -13,27 +13,33 @@ file(
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-#if system is linux, create a new variable
+# set PLATFORM variable
 if(APPLE)
   # for MacOS X or iOS, watchOS, tvOS (since 3.10.3)
-  set(PLATFORM APPLE)
+  set(PLATFORM IS_MACOS)
 elseif(UNIX AND NOT APPLE)
   # for Linux, BSD, Solaris, Minix
-  set(PLATFORM UNIX)
+  set(PLATFORM IS_LINUX)
 elseif(MSVC)
   # for Windows operating system in general
-  set(PLATFORM MSVC)
-elseif(MSYS OR MINGW)
+  set(PLATFORM IS_WINDOWS)
+else(MSYS OR MINGW)
   # for detecting Windows compilers
-  set(PLATFORM MINGW)
+  set(PLATFORM IS_MINGW)
 endif()
 
+EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+message( STATUS "Architecture: ${ARCHITECTURE}" )
 
 set(LIB_SRC ./holyc-lib)
 set(SYNTAX ./syntax-highlighting)
 set(PREFIX /usr/local)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/cmake-config.h)
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 1)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/cmake-config.h)
 
 option(INSTALL "Install the project" ON)
 

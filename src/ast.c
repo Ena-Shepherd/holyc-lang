@@ -6,7 +6,7 @@
 
 #include "aostr.h"
 #include "ast.h"
-#include "config.h"
+#include "cmake-config.h"
 #include "dict.h"
 #include "list.h"
 #include "lexer.h"
@@ -639,7 +639,7 @@ static void astFreeCast(Ast *ast) {
 
 aoStr *astNormaliseFunctionName(char *fname) {
     aoStr *newfn = aoStrNew();
-#if IS_BSD
+#ifdef IS_BSD
     if (fname[0] != '_') {
         aoStrPutChar(newfn, '_');
     }

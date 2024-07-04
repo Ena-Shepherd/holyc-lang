@@ -10,7 +10,7 @@
 #include "aostr.h"
 #include "ast.h"
 #include "cctrl.h"
-#include "config.h"
+#include "cmake-config.h"
 #include "dict.h"
 #include "lexer.h"
 #include "list.h"
@@ -2250,7 +2250,7 @@ void asmInitaliser(Cctrl *cc, aoStr *buf) {
     char *fname = NULL;
     int locals = 0, stack_space;
 
-#if IS_BSD
+#ifdef IS_BSD
     fname = "_main";
 #else
     fname = "main";
