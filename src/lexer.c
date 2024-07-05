@@ -2,7 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pwd.h>
+#include "cmake-config.h"
+#ifdef IS_MINGW
+    #include <windows.h>
+#else 
+    #include <pwd.h>
+#endif
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -83,6 +88,25 @@ static LexerTypes lexer_types[] = {
     {"static", KW_STATIC},
 };
 
+#ifdef IS_MINGW
+    
+    size_t strnlen(const char* s,size_t maxlen) {
+        for (size_t i=0; i < maxlen ; i++ ){
+            if (s[i] == '\0')
+                return i;
+        }
+        return maxlen;
+    }
+
+    char *strndup(const char *s, size_t n) {
+        char *result;
+        size_t len = strnlen(s, n);
+        result = (char *)malloc(len + 1);
+        if (!result) return NULL;
+        result[len] = '\0';
+        return (char *)memcpy(result, s, len);
+    }
+#endif
 
 #define isNum(ch) ((ch) >= '0' && (ch) <= '9')
 #define isHex(ch) \
@@ -373,9 +397,9 @@ char *lexReadfile(char *path) {
     int fd,rbytes,len,size;
 
     if ((fd = open(path, O_RDONLY, 0644)) == -1) {
-        loggerPanic("Failed to open file: %s\n", path);
+            loggerPanic("Failed to open file: %s\n", path);
     }
- 
+
     len = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
 

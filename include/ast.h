@@ -19,6 +19,7 @@
 #define AST_TYPE_INLINE       9
 #define AST_TYPE_UNION        10
 #define AST_TYPE_AUTO         11
+#define AST_TYPE_THREAD       12
 
 /* Relates to the 'kind' property on the Ast struct */
 #define AST_GVAR           256

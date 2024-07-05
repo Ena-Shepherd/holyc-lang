@@ -43,10 +43,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_SOU
 
 option(INSTALL "Install the project" ON)
 
-if(INSTALL)
+if(INSTALL AND NOT PLATFORM STREQUAL IS_MINGW)
   add_custom_target(install_hcc ALL
     COMMAND cd ../src/ && make install
     COMMENT "Running make install in src directory"
+  )
+else()
+  add_custom_target(install_hcc ALL
+    COMMAND echo "Installation not supported on this platform"
+    COMMENT "Installation not supported on this platform"
   )
 endif()
 

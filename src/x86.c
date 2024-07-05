@@ -21,6 +21,10 @@
 #define ASM_INORDER_ARITHMETIC 0
 #define ASM_REVERSE_ARITHMETIC 1
 
+#ifdef IS_MINGW
+    char *strndup(const char *s, size_t n);
+#endif
+
 /**
  * First Argument: %rdi
  * Second Argument: %rsi

@@ -13,7 +13,6 @@
 #include <unistd.h>
 
 #include "aostr.h"
-// #include "config.h"
 #include "compile.h"
 #include "cctrl.h"
 #include "lexer.h"
@@ -56,6 +55,11 @@ typedef struct hccLib {
     char *install_cmd;
 } hccLib;
 
+#ifdef IS_MINGW
+    char *strndup(const char *s, size_t n);
+    size_t strnlen(const char* s,size_t maxlen);
+#endif
+
 char *getVersion(void) {
     return VERSION;
 }
@@ -89,6 +93,18 @@ int hccLibInit(hccLib *lib, hccOpts *opts, char *name) {
     aoStrCatPrintf(installcmd,
             "cp -pPR ./%s /usr/local/lib/lib%s",
             lib->stylib_name,lib->stylib_name);
+#elif defined IS_MINGW
+    snprintf(lib->stylib_name,LIB_BUFSIZ,"%s.a",name);
+    snprintf(lib->dylib_name,LIB_BUFSIZ,"%s.dll",name);
+    snprintf(lib->dylib_version_name,LIB_BUFSIZ,"%s.dll",name);
+    aoStrCatPrintf(
+            dylibcmd, "gcc -shared -o %s -lpthread -lsqlite3 -lc -lm",
+            lib->dylib_name);
+    aoStrCatPrintf(installcmd,
+            "cp -pPR ./%s /usr/local/lib/lib%s",
+            lib->stylib_name,lib->stylib_name);
+    lib->dylib_cmd = aoStrMove(dylibcmd);
+    lib->install_cmd = aoStrMove(installcmd);
 #else
 #error "System not supported"
 #endif
@@ -101,13 +117,14 @@ int hccLibInit(hccLib *lib, hccOpts *opts, char *name) {
     return 1;
 }
 
-void getASMFileName(hccOpts *opts, char *file_name) {
+void getASMFileNames(hccOpts *opts, char *file_name) {
     int len = strlen(file_name);
     int i;
-    char *slashptr = NULL, *asm_outfile, *obj_outfile, *end; 
+    char *slashptr = NULL, *asm_outfile, *obj_outfile, *end;
 
+    #ifndef IS_MINGW
     if ((file_name[0] != '.' && file_name[1] != '/') && 
-         file_name[0] != '/' && file_name[0] != '~') {
+        file_name[0] != '/' && file_name[0] != '~') {
         end = 0;
         slashptr = 0;
     } else {
@@ -123,9 +140,6 @@ void getASMFileName(hccOpts *opts, char *file_name) {
         if (tolower(*end) == 'c' && tolower(*(end-1)) == 'h' && 
                 *(end-2) == '.') {
             end -= 2;
-        } else if (tolower(*end) == 'c' && tolower(*(end-1)) == 'h' && 
-                *(end-2) == '.') {
-            end -= 2;
         } else {
             loggerPanic("Unknown file extension, file must end with .HC or .HH case insensitive. Got: %s\n", file_name);
         }
@@ -134,9 +148,19 @@ void getASMFileName(hccOpts *opts, char *file_name) {
             loggerPanic("Failed to extract filename\n");
         }
     }
+    #else
+    end = &file_name[len-1];
+    for (i = len -1; i >= 0; --i) {
+        if (file_name[i] == '/') {
+            slashptr = &file_name[i];
+            slashptr += 1;
+            break;
+        }
+    }
+    #endif
 
-    asm_outfile = malloc(sizeof(char) * len+1);
-    obj_outfile = malloc(sizeof(char) * len+1);
+    asm_outfile = calloc(len + 1, sizeof(char));
+    obj_outfile = calloc(len + 1, sizeof(char));
 
     memcpy(asm_outfile, slashptr, end-slashptr);
     memcpy(obj_outfile, slashptr, end-slashptr);
@@ -149,6 +173,57 @@ void getASMFileName(hccOpts *opts, char *file_name) {
 
     obj_outfile[end-slashptr+2] = '\0';
     obj_outfile[len] = '\0';
+    opts->asm_outfile = asm_outfile;
+    opts->obj_outfile = obj_outfile;
+}
+
+void getASMFileName(hccOpts *opts, char *file_name) {
+    int len = strlen(file_name);
+    int i;
+    char *slashptr = NULL, *asm_outfile, *obj_outfile, *end;
+
+    #ifdef IS_MINGW
+    char path_sep = '\\'; // Séparateur de chemin pour Windows
+    #else
+    char path_sep = '/'; // Séparateur de chemin pour les systèmes Unix
+    #endif
+
+    // Trouver le dernier séparateur de chemin dans file_name
+    for (i = len - 1; i >= 0; --i) {
+        if (file_name[i] == path_sep) {
+            slashptr = &file_name[i];
+            slashptr += 1; // Déplacer au début du nom de fichier
+            break;
+        }
+    }
+
+    // Si aucun séparateur trouvé, le chemin est relatif
+    if (slashptr == NULL) {
+        slashptr = file_name; // Utiliser le nom de fichier tel quel
+    }
+
+    end = &file_name[len - 1]; // Pointer vers la fin du nom de fichier
+
+    // Vérifier l'extension du fichier
+    if (tolower(*(end)) == 'c' && tolower(*(end - 1)) == 'h' && *(end - 2) == '.') {
+        end -= 2; // Ignorer l'extension actuelle
+    } else {
+        // Gérer l'erreur d'extension de fichier inconnue
+        loggerPanic("Unknown file extension, file must end with .HC or .HH case insensitive. Got: %s\n", file_name);
+    }
+
+    // Calculer la nouvelle longueur pour les noms de fichier de sortie
+    int new_len = (end - slashptr) + 3; // +3 pour l'extension et le caractère nul
+
+    asm_outfile = malloc(sizeof(char) * (new_len + 1)); // +1 pour le caractère nul
+    obj_outfile = malloc(sizeof(char) * (new_len + 1));
+
+    memcpy(asm_outfile, slashptr, end - slashptr);
+    memcpy(obj_outfile, slashptr, end - slashptr);
+
+    memcpy(asm_outfile + (end - slashptr), ".s", 3); // Inclure le caractère nul
+    memcpy(obj_outfile + (end - slashptr), ".o", 3);
+
     opts->asm_outfile = asm_outfile;
     opts->obj_outfile = obj_outfile;
 }
@@ -355,41 +430,39 @@ int main(int argc, char **argv) {
                 "compilation terminated.\n");
         exit(EXIT_FAILURE);
     }
-    hccOpts opts;
+    hccOpts *opts = calloc(1,sizeof(hccOpts));
     int lexer_flags = CCF_PRE_PROC;
     aoStr *asmbuf;
     Cctrl *cc;
-    
 
-    memset(&opts,0,sizeof(opts));
-    opts.clibs = "";
-    opts.defines_list = NULL;
-    opts.output_filename = "a.out";
+    opts->clibs = "";
+    opts->defines_list = NULL;
+    opts->output_filename = "a.out";
     /* now parse cli options */
-    parseCliOptions(&opts,argc,argv);
+    parseCliOptions(opts,argc,argv);
 
     cc = cctrlNew();
-    if (opts.defines_list) {
-        cctrlSetCommandLineDefines(cc,opts.defines_list);
+    if (opts->defines_list) {
+        cctrlSetCommandLineDefines(cc,opts->defines_list);
     }
 
-    if (opts.print_tokens) {
-        List *tokens = compileToTokens(cc,opts.infile,lexer_flags);
+    if (opts->print_tokens) {
+        List *tokens = compileToTokens(cc,opts->infile,lexer_flags);
         lexemePrintList(tokens);
         lexemelistRelease(tokens);
         return 0;
     }
 
-    compileToAst(cc,opts.infile,lexer_flags);
-    if (opts.print_ast) {
+    compileToAst(cc,opts->infile,lexer_flags);
+    if (opts->print_ast) {
         compilePrintAst(cc);
         return 0;
     }
 
     asmbuf = compileToAsm(cc);
 
-    emitFile(asmbuf, &opts);
-    if (opts.defines_list) {
-        listRelease(opts.defines_list,NULL);
+    emitFile(asmbuf, opts);
+    if (opts->defines_list) {
+        listRelease(opts->defines_list,NULL);
     }
 }

@@ -59,6 +59,7 @@
 #define TK_PRE_PLUS_PLUS 0x330
 #define TK_PRE_MINUS_MINUS 0x331
 #define TK_KEYWORD      0x332
+#define TK_PTHREAD_T    0x333
 
 #define KW_CLASS       (1<<0) /* Easy to see if struct or union */
 #define KW_UNION       (1<<1)

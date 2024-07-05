@@ -1,4 +1,4 @@
-TARGET := hcc 
+TARGET := hcc
 CC     := gcc
 CFLAGS := -O0 -ggdb -Wall -DDEBUG
 OUT    := .
@@ -36,7 +36,7 @@ OBJS = $(OUT)/main.o \
 	   $(OUT)/lexer.o
 
 $(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) -lm
+	$(CC) -o $(TARGET) $(OBJS) -I"../include" -lm
 
 install-syntax-nvim:
 	cp $(SYNTAX)/hc.vim ~/.config/nvim/after/syntax/hc.vim
@@ -45,6 +45,12 @@ install:
 	install -c -m 555 ../build/$(TARGET)$(PREFIX)/bin
 	cp $(LIB_SRC)/tos.HH $(PREFIX)/include/tos.HH
 	cd ./holyc-lib && $(TARGET) -lib tos ./all.HC
+
+install-msys2:
+	cp ../build/$(TARGET) /usr/bin
+	cp $(LIB_SRC)/tos.HH /usr/include/tos.HH
+	cd ./holyc-lib
+	hcc -lib tos ./all.HC
 
 prsasm-test:
 	gcc -O0 -g -DPRSASM_TEST ./prsasm.c ./cctrl.c ./dict.c ./ast.c ./aostr.c ./list.c ./lexer.c ./prsutil.c
